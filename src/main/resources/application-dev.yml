@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1314
+    url: jdbc:mysql://localhost:3306/blog?serverTimezone=Asia/Shanghai&useUnicode=true&characterEndoing=UTF-8
+    type: com.alibaba.druid.pool.DruidDataSource
+  jpa:
+    hibernate:
+       ddl-auto: update
+    show-sql: true
+
+#    日志
+logging:
+  level:
+    root: info
+    com.atjiandong.blog: debug
+  file:
+    path: log/blog-dev.log

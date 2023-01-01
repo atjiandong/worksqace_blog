@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atjiandong.blog.mapper.BlogAndTagsMapper">
+
+
+
+<!--    int saveBlogIdAndTagId(Long blogId,List<Long> tagsId);-->
+    <insert id="saveBlogIdAndTagId">
+        INSERT INTO t_blog_tags(blogs_id,tags_id)
+        VALUES
+        <foreach collection="tagsId" item="item"   separator="," >
+        (#{blogId},#{item})
+        </foreach>
+    </insert>
+
+
+    <!--       List<Long> selectTagsIdByBlogId(Long blogId);-->
+    <select id="selectTagsIdByBlogId" resultType="Long">
+     SELECT tags_id FROM t_blog_tags
+      WHERE  blogs_id= #{blogId}
+    </select>
+
+<!--     void deleteTagsId(List<Long> blogId);-->
+    <delete id="deleteTagsId">
+        delete from t_blog_tags
+        where blogs_id = #{blogId};
+    </delete>
+
+<!--     List<Tag> selectTagsByBlogId(Long blogId);-->
+<select id="selectTagsByBlogId" resultType="tag">
+      SELECT  g.*
+  FROM t_tag g
+  LEFT JOIN t_blog_tags s
+  ON g.id =s.`tags_id`
+   WHERE  blogs_id= ${blogId}
+</select>
+
+
+<!--     //根据类型id进行查找相应的blog
+    List<Long> selectBlogIdByTagsId(Long TagsId);-->
+  <select id="selectBlogIdByTagsId" resultType="Long">
+     SELECT blogs_id
+      FROM t_blog_tags s
+      LEFT JOIN t_blog g ON s.blogs_id = g.id
+      WHERE s.tags_id = #{TagsId}
+  </select>
+
+</mapper>

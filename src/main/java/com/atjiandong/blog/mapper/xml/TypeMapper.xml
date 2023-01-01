@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atjiandong.blog.mapper.TypeMapper">
+
+
+<!--     int selectMax();-->
+    <select id="selectMax" resultType="Long">
+              SELECT max(id) FROM t_type;
+    </select>
+
+<!--     Type save(Type type);-->
+    <insert id="save" >
+       insert into t_type(id,name) values (#{id},#{name});
+    </insert>
+
+<!--    Type getType(Type type);-->
+    <select id="getTypeName" resultType="type">
+        select * from t_type where name = #{name};
+    </select>
+
+<!--     Type getTypeById(Long id);-->
+    <select id="getTypeById" resultType="type">
+        select * from t_type where id=${id};
+    </select>
+
+<!--        Type updateType(@Param("id") Long id,Type type);-->
+     <update id="updateType">
+        update t_type set name=#{name}
+        where id=#{id};
+     </update>
+
+<!--     void deleteTypeById(Long id);-->
+    <delete id="deleteTypeById">
+        delete from t_type where id=#{id};
+    </delete>
+
+
+    <select id="listType" resultType="type">
+     select * from t_type
+        <if test=" num != null and num != ''">
+            LIMIT 0,${num}
+        </if>
+        ORDER BY id asc
+    </select>
+
+    <select id="listAllType" resultType="type">
+     select * from t_type ORDER BY id asc
+    </select>
+
+    <select id="selectTypes" resultType="type">
+        select * from t_type limit #{index},#{num};
+    </select>
+
+
+    <resultMap type="type" id="Type_And_Blog">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <collection property="blogs" ofType="Blog">
+            <result property="title" column="title"></result>
+            <result property="content" column="content"></result>
+            <result property="firstPicture" column="first_picture"></result>
+            <result property="flag" column="flag"></result>
+            <result property="appreciation" column="appreciation"></result>
+            <result property="schareStatement" column="schareStatement"></result>
+            <result property="views" column="views"></result>
+            <result property="commentable" column="commentable"></result>
+            <result property="published" column="published"></result>
+            <result property="recommend" column="recommend"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+            <result property="description" column="description"></result>
+        </collection>
+    </resultMap>
+
+<!--       List<Type> getTypeGroup(Integer num);-->
+    <select id="getTypesByLimt" resultMap="Type_And_Blog">
+       SELECT t.*,o.`appreciation`,o.`commentable`,o.`content`,o.`create_time`,o.`description`,o.`first_picture`,o.`flag`,o.`published`,o.`recommend`,o.`share_statement`,o.`title`,o.`type_id`,o.`update_time`,o.`user_id`,o.`views`
+        FROM
+        `t_type` t
+        LEFT JOIN `t_blog` o ON t.`id` =o.`type_id`
+        <if test=" num != null and num != ''">
+            LIMIT 0,${num}
+        </if>
+    </select>
+
+
+<!--     Type foundBlogType(Long blogId);-->
+    <select id="foundBlogType" resultType="type">
+       SELECT t.*
+    FROM `t_blog` g
+    LEFT JOIN `t_type` t ON g.`type_id` = t.id
+    WHERE g.id = ${blogId}
+    </select>
+
+</mapper>

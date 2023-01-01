@@ -1,0 +1,45 @@
+spring:
+  thymeleaf:
+    mode: HTML
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+#配置i18n文件的显示，放置一个文件夹中时
+messages:
+  basename: i18n/messages
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations:
+    - classpath*:/com/atjiandong/blog/mapper/xml/*.xml
+  type-aliases-package: com.atjiandong.blog.pojo
+
+pagehelper:
+  row-bounds-with-count: true
+  offset-as-page-num: true
+  page-size-zero: true
+  reasonable: false
+  support-methods-arguments: false
+  params: count=countSql
+  helper-dialect: mysql
+
+
+
+
+#配置对象的属性路径
+comment.avatar: /images/avatar.jpg
+
+
+pring:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled=true:

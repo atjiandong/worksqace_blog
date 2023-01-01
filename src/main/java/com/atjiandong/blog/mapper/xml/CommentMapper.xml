@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atjiandong.blog.mapper.CommentMapper">
+
+
+    <resultMap id="commentAndParent" type="com.atjiandong.blog.pojo.Comment">
+    <!-- id标签和result都是对字段做映射的,唯一不同的就是id代表对主键的映射 -->
+    <!--        <id property="id" column="id" javaType="INTEGER" jdbcType="INTEGER"/>-->
+    <id property="id" column="id"></id>
+    <result property="nickname" column="nickname"></result>
+    <result property="email" column="email"></result>
+    <result property="content" column="content"></result>
+    <result property="avatar" column="avatar"></result>
+    <result property="createTime" column="create_time"></result>
+    <association property="parentComment" javaType="com.atjiandong.blog.pojo.Comment">
+    <id property="id" column="parent_comment_id"></id>
+    </association>
+    </resultMap>
+<!--    List<Comment> listCommentByBlogId(Long blogId);-->
+    <select id="listCommentByBlogId" resultType="comment">
+        SELECT * FROM t_comment
+        <if test="blogId != null and blogId != '' ">
+            WHERE blog_id = #{blogId}
+        </if>
+          ORDER BY create_time DESC
+    </select>
+
+
+<!--     //根据blogId和判断parentComment是否有值 查询评论
+    List<Comment> listCommentByBlogIdAndParent(Long blogId);-->
+    <select id="listCommentByBlogIdAndParentNull" resultType="comment">
+        SELECT * FROM t_comment
+        <if test="blogId != null and blogId != '' ">
+            WHERE blog_id = #{blogId}
+        </if>
+        AND parent_comment_id IS NULL
+        ORDER BY create_time asc
+    </select>
+
+<!--    int saveComment(Comment comment);-->
+    <insert id="saveComment" >
+        INSERT INTO t_comment(avatar,create_time,email,nickname,blog_id,parent_comment_id,content,admin_comment)
+         VALUE(#{comment.avatar},#{comment.createTime},#{comment.email},#{comment.nickname},#{comment.blog.id},#{comment.parentComment.id},#{comment.content},#{comment.adminComment});
+ </insert>
+
+
+<!--    //根据commentParentId 查找相应的多个对象数据
+    List<Comment> listCommentByParentId(Long parentId);-->
+    <select id="listCommentByParentId" resultType="comment">
+        select * from t_comment
+        <if test="parentId != null and parentId != '' ">
+            where parent_comment_id = #{parentId}
+        </if>
+    </select>
+
+
+<!--        //查询所有父级数据
+    Comment selectParentComment(Long parentCommentId);-->
+    <select id="selectParentComment" resultType="comment">
+        select *
+        from t_comment
+        <if test="parentId != null and parentId != '' ">
+            where parent_comment_id = #{parentCommentId}
+        </if>
+    </select>
+
+<!--    //使用id 进行查找相应的评论
+    Comment selectCommentByid(Long CommentId);-->
+    <select id="selectCommentById" resultType="comment">
+        select * from t_comment
+        Where id = #{commentId}
+    </select>
+
+
+</mapper>

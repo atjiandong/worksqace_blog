@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atjiandong.blog.mapper.BlogMapper">
+
+    <resultMap id="blog" type="com.atjiandong.blog.pojo.Blog">
+        <!-- id标签和result都是对字段做映射的,唯一不同的就是id代表对主键的映射 -->
+<!--        <id property="id" column="id" javaType="INTEGER" jdbcType="INTEGER"/>-->
+        <id property="id" column="id"></id>
+        <result property="title" column="title"></result>
+        <result property="content" column="content"></result>
+        <result property="firstPicture" column="first_picture"></result>
+        <result property="flag" column="flag"></result>
+        <result property="appreciation" column="appreciation"></result>
+        <result property="schareStatement" column="schareStatement"></result>
+        <result property="views" column="views"></result>
+        <result property="commentable" column="commentable"></result>
+        <result property="published" column="published"></result>
+        <result property="recommend" column="recommend"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <result property="description" column="description"></result>
+        <!-- 一对一的关联的对象,用association标签建立关系 -->
+        <association property="type" javaType="com.atjiandong.blog.pojo.Type">
+        <id property="id" column="type_id" />
+        <result property="name" column="name"  />
+        </association>
+
+    </resultMap>
+
+
+    <resultMap id="blogAndUser" type="com.atjiandong.blog.pojo.Blog">
+    <!-- id标签和result都是对字段做映射的,唯一不同的就是id代表对主键的映射 -->
+    <!--        <id property="id" column="id" javaType="INTEGER" jdbcType="INTEGER"/>-->
+    <id property="id" column="id"></id>
+    <result property="title" column="title"></result>
+    <result property="content" column="content"></result>
+    <result property="firstPicture" column="first_picture"></result>
+    <result property="flag" column="flag"></result>
+    <result property="appreciation" column="appreciation"></result>
+    <result property="schareStatement" column="schareStatement"></result>
+    <result property="views" column="views"></result>
+    <result property="commentable" column="commentable"></result>
+    <result property="published" column="published"></result>
+    <result property="recommend" column="recommend"></result>
+    <result property="createTime" column="create_time"></result>
+    <result property="updateTime" column="update_time"></result>
+    <result property="description" column="description"></result>
+        <association property="user" javaType="com.atjiandong.blog.pojo.User">
+            <id property="id" column="user_id"></id>
+            <result property="avatar" column="avatar"  />
+            <result property="nickname" column="nickname"  />
+            <result property="username" column="username"  />
+            <result property="password" column="password"  />
+            <result property="email" column="email"  />
+            <result property="type" column="type"></result>
+            <result property="createTime" column="create_time"  />
+            <result property="updateTime" column="update_time"  />
+        </association>
+        <!-- 一对一的关联的对象,用association标签建立关系 -->
+        <association property="type" javaType="com.atjiandong.blog.pojo.Type">
+            <id property="id" column="type_id" />
+            <result property="name" column="name"  />
+        </association>
+    </resultMap>
+
+
+    <!--        List<Blog> selectBlogsAndType(Blog blog);-->
+    <select id="selectBlogAndType" resultMap="blog">
+ select o.* ,u.name
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+ <where>
+ <choose>
+     <when test="title != '' and title != null">
+     title = #{title} </when>
+   <when test="recommend != '' and recommend != null">
+       recommend = #{recommend}</when>
+     <when test="type != null">
+          type_id = #{type.id} </when>
+ </choose>
+       </where>
+        </select>
+
+<!--        int saveBlog(Blog blog);-->
+    <insert id="saveBlog">
+INSERT INTO t_blog (`id`, `appreciation`, `commentable`, `content`, `create_time`, `first_picture`, `flag`, `published`, `recommend`, `share_statement`, `title`, `update_time`,`views`, `type_id`, `user_id`,`description`)
+VALUES (#{blog.id}, #{blog.appreciation}, #{blog.commentable}, #{blog.content}, #{blog.createTime}, #{blog.firstPicture}, #{blog.flag}, #{blog.published}, #{blog.recommend}, #{blog.shareStatement}, #{blog.title}, #{blog.updateTime},0, #{blog.type.id}, #{blog.user.id},#{blog.description})
+    </insert>
+
+<!--        Long selectBlogIdMax();-->
+    <select id="selectBlogIdMax" resultType="Long">
+        select max(id) from t_blog;
+            </select>
+
+<!--    void updateBlog(Long id, Blog blog);-->
+    <update id="updateBlog" >
+ update t_blog set `appreciation`=#{blog.appreciation}, `commentable`=#{blog.commentable}, `content`=#{blog.content}, `first_picture`=#{blog.firstPicture}, `flag`=#{blog.flag}, `published`=#{blog.published}, `recommend`=#{blog.recommend}, `share_statement`=#{blog.shareStatement}, `title`=#{blog.title}, `update_time`=#{blog.updateTime}, `type_id`=#{blog.type.id}, `user_id`=#{blog.user.id},`description`=#{blog.description}
+        where id=#{blog.id}
+    </update>
+
+
+<!--        List<Blog> selectAllBlog();-->
+    <select id="selectAllBlog" resultMap="blogAndUser">
+ SELECT o.* ,u.name,r.nickname,r.create_time,r.`email`,r.`nickname`,r.`password`,r.`type`,r.`update_time`,r.`username`,r.`avatar`
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+        LEFT JOIN `t_user` r ON o.`user_id` = r.`id`
+ </select>
+
+
+
+<!--    int saveBlogIdAndTagId(Long blogId,List<Long> tagsId);-->
+    <insert id="saveBlogIdAndTagId">
+        INSERT INTO t_blog_tags(blogs_id,tags_id)
+        VALUES
+        <foreach collection="tagsId" item="item"   separator="," >
+            (#{blogId},#{item})
+        </foreach>
+    </insert>
+
+
+    <!--       List<Long> selectTagsIdByBlogId(Long blogId);-->
+
+    <select id="selectTagsIdByBlogId" resultType="Long">
+     SELECT tags_id FROM t_blog_tags
+WHERE  blogs_id=#{blogId}
+    </select>
+
+
+
+<!--      Blog  selectBlogById();-->
+    <select id="selectBlogById" resultMap="blog">
+      select o.* ,u.name
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+        where  o.id =${id}
+    </select>
+
+<!--        void deleteBlog(Long id);-->
+    <delete id="deleteBlog">
+        delete from t_blog where id =${id}
+    </delete>
+
+<!--        List<Blog> selectOrderByTime(Integer num);-->
+    <select id="selectRecommend" resultType="blog">
+        SELECT * FROM t_blog
+        WHERE recommend= 1
+        ORDER BY  create_time
+        <if test=" num != null and num != ''">
+            LIMIT 0,${num}
+        </if>
+    </select>
+
+
+<!--    List<Blog> queryBlogByTitleAndContent(String query);-->
+    <select id="queryBlogByTitleAndContent"  resultMap="blogAndUser">
+         SELECT o.* ,u.name,r.nickname,r.create_time,r.`email`,r.`nickname`,r.`password`,r.`type`,r.`update_time`,r.`username`,r.avatar
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_user` r ON o.`user_id` = r.`id`
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+--         <if test="queryName != null and queryName != ''">
+        WHERE description LIKE  '%${queryName}%'  OR title LIKE  '%${queryName}%'
+--         </if>
+    </select>
+
+
+<!--     Blog selectAllBlogMsg(Long id);-->
+    <select id="selectAllBlogMsg" resultMap="blogAndUser">
+   SELECT o.* ,u.name,r.nickname,r.create_time,r.`email`,r.`nickname`,r.`password`,r.`type`,r.`update_time`,r.`username`,r.`avatar`
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+        LEFT JOIN `t_user` r ON o.`user_id` = r.`id`
+        where o.id=${id}
+    </select>
+
+
+    <!--     Blog selectAllBlogMsgByTypeId(Long typeId);-->
+    <select id="selectAllBlogMsgByTypeId" resultMap="blogAndUser">
+   SELECT o.* ,u.name,r.nickname,r.create_time,r.`email`,r.`nickname`,r.`password`,r.`type`,r.`update_time`,r.`username`,r.`avatar`
+        FROM
+        `t_blog` o
+        LEFT JOIN `t_type` u ON o.type_id = u.id
+        LEFT JOIN `t_user` r ON o.`user_id` = r.`id`
+        where o.type_id=${typeId}
+    </select>
+<!--
+    //修改次数
+    int updateBlogView(Long id);
+    -->
+    <update id="updateBlogView" >
+       UPDATE t_blog SET views = (views+1) WHERE id = #{id}
+    </update>
+
+
+<!--        //查询归档页面需要显示的内容
+    List<Archive>  selectArchive(String year);
+    -->
+    <select id="selectArchive" resultType="archives">
+SELECT id blogId,title blogTitle,DATE_FORMAT(update_time,'%m-%d') blogUpdateTime,flag blogFlag
+FROM t_blog
+WHERE DATE_FORMAT(update_time,'%Y') = '${year}'
+ORDER BY update_time DESC
+    </select>
+
+    <!--
+    //查询所有的年份，根据
+    List<String> selectAllYear();
+-->
+    <select id="selectAllYear" resultType="string">
+        SELECT  DATE_FORMAT(update_time,'%Y') `year`
+FROM t_blog
+GROUP BY DATE_FORMAT(update_time,'%Y')
+    </select>
+
+
+<!--     //查询出blog的总数
+    int selectBlogCount();-->
+    <select id="selectBlogCount" resultType="int">
+         SELECT COUNT(id) FROM t_blog;
+    </select>
+
+</mapper>
